@@ -35,6 +35,14 @@ public class PropertiesContentFilter extends LineBasedContentFilter
 
     if (equalsMarkIndex != -1)
     {
+      final String startMask = "${";
+      final String endMask = "}";
+      final int startDollarIndex = line.indexOf(startMask);
+      final int endDollarIndex = line.indexOf(endMask);
+      if (startDollarIndex != -1)
+      {
+        line = replaceLineWith(line, replaces, startDollarIndex, endDollarIndex);
+      }
       return replaceLineWith(line, replaces, equalsMark, equalsMarkIndex);
     }
 
@@ -55,6 +63,21 @@ public class PropertiesContentFilter extends LineBasedContentFilter
       if (replace.getKey().equals(key))
       {
         return key + equalsMark + replace.getValue();
+      }
+    }
+
+    return line;
+  }
+
+  private String replaceLineWith(String line, List<Replace> replaces, int startMaskIndex, int endMaskIndex)
+  {
+    String key = line.substring(startMaskIndex + 2, endMaskIndex).trim();
+
+    for (final Replace replace : replaces)
+    {
+      if (replace.getKey().equals(key))
+      {
+        return line.replace("${" + key + "}", replace.getValue());
       }
     }
 
